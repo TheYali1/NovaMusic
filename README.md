@@ -1,7 +1,7 @@
-<div align="center">
-
-> [!WARN]
+> [!WARNING]
 > Lively Wallpaper Version is in beta and has bugs!
+
+<div align="center">
 
 # NovaMusic
 
