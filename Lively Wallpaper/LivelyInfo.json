@@ -1,0 +1,16 @@
+﻿{
+  "AppVersion": "2.0.6.0",
+  "Title": "NovaMusic",
+  "Thumbnail": "preview.jpg",
+  "Preview": null,
+  "Desc": "Wallpaper that shows the song you are listening to and the lyrics, synced!",
+  "Author": "Yali",
+  "License": null,
+  "Contact": null,
+  "Type": 1,
+  "FileName": "index.html",
+  "Arguments": "--system-nowplaying --audio --pause-event true",
+  "IsAbsolutePath": false,
+  "Id": null,
+  "Version": 1
+}
