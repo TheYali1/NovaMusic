@@ -12,7 +12,7 @@
 <br>
 
 [![Wallpaper Engine](https://img.shields.io/badge/Wallpaper%20Engine-111111?style=for-the-badge&logo=steam&logoColor=white)](https://store.steampowered.com/app/431960/Wallpaper_Engine/)
-[![Lively Wallpaper](https://img.shields.io/badge/Lively%20Wallpaper-1b487b?style=for-the-badge)](https://apps.microsoft.com/detail/9ntm2qc6qws7)
+[![Lively Wallpaper](https://img.shields.io/badge/Lively%20Wallpaper-1b487b?style=for-the-badge)](https://apps.microsoft.com/detail/9ntm2qc6qws7)     
 ![HTML](https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
