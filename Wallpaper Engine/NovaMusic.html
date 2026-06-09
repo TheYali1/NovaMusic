@@ -31,6 +31,7 @@
         #bg {
             position: fixed;
             inset: 0;
+            z-index: 0;
             background-size: cover;
             background-position: center;
             filter: blur(40px) brightness(0.75);
@@ -51,6 +52,7 @@
 
         #center {
             position: absolute;
+            z-index: 2;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -103,6 +105,7 @@
 
         #lyricsPanel {
             position: fixed;
+            z-index: 2;
             top: 3vh;
             right: 2.2vw;
             width: min(56vw, 1080px);
@@ -297,6 +300,7 @@
 
         #lyricsCredits {
             position: fixed;
+            z-index: 2;
             left: 34px;
             bottom: 62px;
             color: rgba(255, 255, 255, 0.72);

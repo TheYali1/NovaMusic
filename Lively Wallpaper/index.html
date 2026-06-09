@@ -39,11 +39,161 @@
         #bg {
             position: fixed;
             inset: 0;
+            z-index: 0;
             background-size: cover;
             background-position: center;
             filter: blur(40px) brightness(0.75);
             transform: scale(1.2);
-            transition: opacity 0.6s ease;
+            transition: opacity 0.6s ease, filter 0.24s ease;
+            will-change: transform, opacity, filter;
+        }
+
+        #waveformCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, filter 0.24s ease;
+            mix-blend-mode: screen;
+        }
+
+        body.waveform-enabled #waveformCanvas {
+            opacity: 0.34;
+        }
+
+        #settingsButton {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 32;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.48);
+            color: white;
+            cursor: pointer;
+            backdrop-filter: blur(14px);
+        }
+
+        #settingsButton svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        #settingsButton:hover {
+            background: rgba(255, 255, 255, 0.14);
+            cursor: pointer;
+        }
+
+        #settingsScrim {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            background: rgba(0, 0, 0, 0.38);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.24s ease;
+        }
+
+        #settingsPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            z-index: 31;
+            width: min(360px, calc(100vw - 40px));
+            box-sizing: border-box;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 8px;
+            background: rgba(8, 8, 10, 0.84);
+            color: white;
+            font: 15px system-ui, sans-serif;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(22px);
+            transform: translate(-50%, -50%);
+            cursor: default;
+        }
+
+        #settingsScrim[hidden],
+        #settingsPanel[hidden] {
+            display: none;
+        }
+
+        body.settings-open #settingsScrim {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .settings-title {
+            margin-bottom: 14px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-height: 38px;
+            line-height: 1.3;
+            cursor: pointer;
+        }
+
+        .setting-row span {
+            cursor: pointer;
+        }
+
+        .setting-row input {
+            appearance: none;
+            -webkit-appearance: none;
+            position: relative;
+            width: 20px;
+            height: 20px;
+            flex: 0 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .setting-row input::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 47%;
+            width: 5px;
+            height: 10px;
+            border: solid black;
+            border-width: 0 2px 2px 0;
+            transform: translate(-50%, -50%) rotate(45deg) scale(0);
+            transform-origin: center;
+            transition: transform 0.16s ease;
+        }
+
+        .setting-row:hover input,
+        .setting-row input:hover {
+            border-color: rgba(255, 255, 255, 0.86);
+            background: rgba(255, 255, 255, 0.14);
+            cursor: pointer;
+        }
+
+        .setting-row input:checked {
+            border-color: white;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
+        }
+
+        .setting-row input:checked::after {
+            transform: translate(-50%, -58%) rotate(45deg) scale(1);
         }
 
         #album {
@@ -59,6 +209,7 @@
 
         #center {
             position: absolute;
+            z-index: 2;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -112,6 +263,7 @@
 
         #lyricsPanel {
             position: fixed;
+            z-index: 2;
             top: 3vh;
             right: 2.2vw;
             width: min(56vw, 1080px);
@@ -306,6 +458,7 @@
 
         #lyricsCredits {
             position: fixed;
+            z-index: 2;
             left: 34px;
             bottom: 62px;
             color: rgba(255, 255, 255, 0.72);
@@ -336,6 +489,17 @@
                 visibility 0s;
         }
 
+        body.settings-open #bg {
+            filter: blur(54px) brightness(0.48);
+        }
+
+        body.settings-open #waveformCanvas,
+        body.settings-open #center,
+        body.settings-open #lyricsPanel,
+        body.settings-open #lyricsCredits {
+            filter: blur(12px);
+        }
+
         #lyricsProvider {
             position: fixed;
             width: 1px;
@@ -351,6 +515,26 @@
 <body>
 
     <div id="bg"></div>
+    <canvas id="waveformCanvas" aria-hidden="true"></canvas>
+
+    <button id="settingsButton" type="button" aria-label="Settings" title="Settings" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.09a2 2 0 0 1 1 1.74v.5a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+    </button>
+    <div id="settingsScrim" hidden aria-hidden="true"></div>
+    <div id="settingsPanel" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div id="settingsTitle" class="settings-title">Settings</div>
+        <label class="setting-row">
+            <input id="beatMotionToggle" type="checkbox">
+            <span>Move background with song beat</span>
+        </label>
+        <label class="setting-row">
+            <input id="waveformToggle" type="checkbox">
+            <span>Show waveform</span>
+        </label>
+    </div>
 
     <div id="center">
         <div id="album"></div>
@@ -383,6 +567,13 @@
     const lyricsViewport = document.getElementById('lyricsViewport');
     const lyricsScroller = document.getElementById('lyricsScroller');
     const lyricsCredits = document.getElementById('lyricsCredits');
+    const settingsButton = document.getElementById('settingsButton');
+    const settingsScrim = document.getElementById('settingsScrim');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const beatMotionToggle = document.getElementById('beatMotionToggle');
+    const waveformToggle = document.getElementById('waveformToggle');
+    const waveformCanvas = document.getElementById('waveformCanvas');
+    const waveformCtx = waveformCanvas.getContext('2d');
 
     let duration = 0;
 
@@ -429,6 +620,15 @@
     let allowLyricsBackwardUntil = 0;
     let lastProviderClockSentAt = 0;
     let lastLyricsVisualUpdateAt = 0;
+    let latestAudioSamples = [];
+    let audioEnergy = 0;
+    let latestLivelyTrack = null;
+    let lastLyricsWindowsSyncKey = '';
+
+    const visualSettings = {
+        beatMotion: false,
+        waveform: false
+    };
 
     function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
@@ -443,6 +643,146 @@
         const s = String(sec % 60).padStart(2, '0');
 
         return `${m}:${s}`;
+    }
+
+    function resizeWaveformCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        waveformCanvas.width = Math.max(1, Math.floor(width * dpr));
+        waveformCanvas.height = Math.max(1, Math.floor(height * dpr));
+        waveformCanvas.style.width = `${width}px`;
+        waveformCanvas.style.height = `${height}px`;
+        waveformCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function normalizeAudioSamples(values) {
+        if (typeof values === 'string') {
+            try {
+                values = JSON.parse(values);
+            } catch {
+                values = [];
+            }
+        }
+
+        if (!Array.isArray(values) && !ArrayBuffer.isView(values)) return [];
+
+        let samples = Array.from(values)
+            .map(value => Math.abs(Number(value) || 0))
+            .filter(value => Number.isFinite(value));
+
+        if (samples.length === 0) return [];
+
+        const maxSample = Math.max(...samples);
+        if (maxSample > 1) {
+            const divisor = maxSample <= 255 ? 255 : maxSample;
+            samples = samples.map(value => value / divisor);
+        }
+
+        return samples.map(value => clamp(value, 0, 1));
+    }
+
+    function drawWaveform() {
+        const width = waveformCanvas.clientWidth;
+        const height = waveformCanvas.clientHeight;
+        waveformCtx.clearRect(0, 0, width, height);
+
+        if (!visualSettings.waveform || latestAudioSamples.length === 0) return;
+
+        const baseY = height - 18;
+        const step = width / Math.max(1, latestAudioSamples.length - 1);
+        const barWidth = Math.max(2, step * 0.62);
+        const availableHeight = Math.max(1, baseY - 6);
+        const gradient = waveformCtx.createLinearGradient(0, 6, 0, baseY);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.58)');
+        gradient.addColorStop(0.72, 'rgba(255, 255, 255, 0.28)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.03)');
+
+        waveformCtx.fillStyle = gradient;
+
+        latestAudioSamples.forEach((sample, index) => {
+            const rawAmp = Math.pow(clamp(sample, 0, 1), 0.74) * availableHeight;
+            const amp = clamp(rawAmp, 2, availableHeight);
+            const x = (index * step) - (barWidth / 2);
+            waveformCtx.fillRect(x, baseY - amp, barWidth, amp);
+        });
+    }
+
+    function updateBackgroundMotion() {
+        let scale = 1.2;
+
+        if (visualSettings.beatMotion) {
+            const beat = Math.pow(clamp(audioEnergy, 0, 1), 0.72);
+            scale += beat * 0.26;
+        }
+
+        if (!visualSettings.beatMotion) {
+            audioEnergy *= 0.92;
+        } else {
+            audioEnergy *= 0.975;
+        }
+
+        bg.style.transform = `scale(${scale.toFixed(4)})`;
+
+        if (visualSettings.waveform) {
+            drawWaveform();
+        }
+
+        requestAnimationFrame(updateBackgroundMotion);
+    }
+
+    function handleWallpaperAudioSamples(values) {
+        const samples = normalizeAudioSamples(values);
+        if (samples.length === 0) return;
+
+        latestAudioSamples = samples;
+        const average = samples.reduce((sum, value) => sum + value, 0) / samples.length;
+        const peak = samples.reduce((max, value) => Math.max(max, value), 0);
+        const waveformEnergy = clamp((peak * 0.78) + (average * 0.72), 0, 1);
+        audioEnergy += (waveformEnergy - audioEnergy) * 0.38;
+
+        if (visualSettings.waveform) {
+            drawWaveform();
+        }
+    }
+
+    function setVisualSetting(name, value) {
+        visualSettings[name] = Boolean(value);
+        document.body.classList.toggle('waveform-enabled', visualSettings.waveform);
+
+        if (!visualSettings.beatMotion) {
+            bg.style.transform = 'scale(1.2)';
+        }
+
+        if (!visualSettings.waveform) {
+            waveformCtx.clearRect(0, 0, waveformCanvas.clientWidth, waveformCanvas.clientHeight);
+        }
+    }
+
+    function setSettingsOpen(open) {
+        const isOpen = Boolean(open);
+        settingsPanel.hidden = !isOpen;
+        settingsScrim.hidden = !isOpen;
+        document.body.classList.toggle('settings-open', isOpen);
+        settingsButton.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    function bindVisualControls() {
+        settingsButton.addEventListener('click', () => {
+            setSettingsOpen(settingsPanel.hidden);
+        });
+
+        settingsScrim.addEventListener('pointerdown', () => {
+            setSettingsOpen(false);
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') setSettingsOpen(false);
+        });
+
+        beatMotionToggle.addEventListener('change', () => setVisualSetting('beatMotion', beatMotionToggle.checked));
+        waveformToggle.addEventListener('change', () => setVisualSetting('waveform', waveformToggle.checked));
     }
 
     function getEstimatedPosition(now = performance.now()) {
@@ -487,7 +827,7 @@
             : Math.max(0, value);
     }
 
-    function syncToExternalSongPosition(externalPosition, now = performance.now()) {
+    function syncToExternalSongPosition(externalPosition, now = performance.now(), force = false) {
         const nextPosition = normalizeExternalPositionSeconds(externalPosition);
         if (nextPosition === null) return false;
 
@@ -498,7 +838,7 @@
             : Math.abs(nextPosition - lastTimelinePosition);
         const looksLikeSeek = positionDelta >= EXTERNAL_POSITION_SEEK_THRESHOLD;
         const externalMoved = positionDelta > 0.04;
-        const shouldJump = (
+        const shouldJump = force || (
             !hasExternalSongPosition ||
             !isPlaying ||
             looksLikeSeek ||
@@ -514,6 +854,26 @@
         setBasePosition(nextPosition, now);
         pushLyricsClock(nextPosition, now, true);
         return true;
+    }
+
+    function syncLoadedLyricsToWindowsPosition(lines) {
+        const fingerprint = getLyricsFingerprint(lines);
+        const syncKey = `${activeSongKey}|${fingerprint}`;
+        if (!activeSongKey || lastLyricsWindowsSyncKey === syncKey) return;
+
+        lastLyricsWindowsSyncKey = syncKey;
+        if (!latestLivelyTrack) return;
+
+        const timeline = readTrackTimeline(latestLivelyTrack);
+        if (timeline.duration !== null && timeline.duration > 0) {
+            duration = timeline.duration;
+        }
+
+        if (timeline.position === null) return;
+
+        const now = performance.now();
+        allowLyricsBackwardUntil = now + 1700;
+        syncToExternalSongPosition(timeline.position, now, true);
     }
 
     function setPlaybackState(playing, now = performance.now()) {
@@ -576,6 +936,10 @@
 
     requestAnimationFrame(updateTime);
     requestAnimationFrame(updateLyricsFrame);
+    resizeWaveformCanvas();
+    bindVisualControls();
+    requestAnimationFrame(updateBackgroundMotion);
+    window.addEventListener('resize', resizeWaveformCanvas);
 
     function setLyricsVisible(value) {
         if (visibleLyrics === value) return;
@@ -852,6 +1216,7 @@
         });
 
         lyricsScroller.appendChild(fragment);
+        syncLoadedLyricsToWindowsPosition(lines);
 
         requestAnimationFrame(() => {
             const now = performance.now();
@@ -1458,6 +1823,8 @@
         lastPlaybackStateExplicit = false;
         hasExternalSongPosition = false;
         lastExternalSongPositionAt = 0;
+        latestLivelyTrack = null;
+        lastLyricsWindowsSyncKey = '';
         clearTimeout(lyricsSearchTimer);
         activeLyricsProvider = null;
         resetStableLyricsClock();
@@ -1536,6 +1903,7 @@
             lastTimelinePosition = null;
             hasExternalSongPosition = false;
             lastExternalSongPositionAt = 0;
+            lastLyricsWindowsSyncKey = '';
             setPlaybackState(playbackState !== false, now);
             scheduleLyricsSearch();
         } else if (playbackState !== null) {
@@ -1571,6 +1939,7 @@
     function livelyCurrentTrack(data) {
         try {
             const track = typeof data === 'string' ? JSON.parse(data) : data;
+            latestLivelyTrack = track || null;
             applyTrack(track);
         } catch (error) {
             console.error('NovaMusic: Failed to parse Lively now-playing data', error);
@@ -1609,6 +1978,7 @@
 
         if (!Array.isArray(values) || values.length === 0) return;
 
+        handleWallpaperAudioSamples(values);
         livelyReceivedAudio = true;
         const average = values.reduce((sum, value) => sum + Math.abs(Number(value) || 0), 0) / values.length;
         const now = performance.now();
